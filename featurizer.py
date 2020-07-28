@@ -253,7 +253,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Take the set of files and read them all into a single pandas dataframe
-    input_files = [ os.path.join(args.train, file) for file in os.listdir(args.train) ]
+    input_files = [ os.path.join(args.train, file) for file in os.listdir(args.train) if '_COMPLETE' not in file]
     if len(input_files) == 0:
         raise ValueError(('There are no files in {}.\n' +
                           'This usually indicates that the channel ({}) was incorrectly specified,\n' +
