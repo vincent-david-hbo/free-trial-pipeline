@@ -252,7 +252,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    # Take the set of files and read them all into a single pandas dataframe
+    # Take the set of files and read them all into a single pandas dataframe             
     input_files = [ os.path.join(args.train, file) for file in os.listdir(args.train) if '_COMPLETE' not in file]
     if len(input_files) == 0:
         raise ValueError(('There are no files in {}.\n' +
@@ -348,19 +348,20 @@ def predict_fn(input_data, model):
     
         rest of features either one hot encoded or standardized
     """
-    features = model.transform(input_data)
     
+    features = model.transform(input_data)
+
     if label_column in input_data:
         # Return the label (as the first column) and the set of features.
         labeled_features = np.insert(features, 0, input_data[label_column], axis=1)
-        
+
         # Drop the first row (headers)
         features_no_header = np.delete(labeled_features, 0, axis=0)
 
     else:
         # Drop the first row (headers)
         features_no_header = np.delete(features, 0, axis=0)
-    
+
     return features_no_header
     
 
