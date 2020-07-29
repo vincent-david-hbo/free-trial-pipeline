@@ -99,6 +99,12 @@ def lambda_handler(event, context):
                   ,'ModelDataUrl': models['XGBoostModelData']
               }
           ]
+    ,Tags=[
+        {
+            'Key': 'model',
+            'Value': 'free_trial_pipeline'
+        }
+    ]
     )
     
     return {
