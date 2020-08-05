@@ -75,9 +75,6 @@ def lambda_handler(event, context):
     # collect best model detail
     models = collect_models()
     
-    # holder for env vars
-    SAGEMAKER_SPARKML_SCHEMA = ''
-    
     # create a new PipelineModel
     response = sm_client.create_model(
      ModelName=PipelineModelName
@@ -88,9 +85,6 @@ def lambda_handler(event, context):
                   ,'Image': models['SKLearnImage']
                   ,'Mode': 'SingleModel' # 'MultiModel'
                   ,'ModelDataUrl': models['SKLearnModelData']
-                  ,'Environment': {
-                      'SAGEMAKER_SPARKML_SCHEMA': SAGEMAKER_SPARKML_SCHEMA
-                   }
               },
              {
                   'ContainerHostname': 'XGBoostModel'

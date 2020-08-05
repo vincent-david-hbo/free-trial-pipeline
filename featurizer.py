@@ -238,8 +238,7 @@ feature_columns_names = ['HBO_UUID',
  'FT_SUB_SEGMENT']
 
 label_column = 'FLG_TARGET'
-
-
+id_column = 'HBO_UUID'
 
 if __name__ == '__main__':
 
@@ -269,15 +268,17 @@ if __name__ == '__main__':
         names=feature_columns_names + [label_column]) for file in input_files ]
     
     concat_data = pd.concat(raw_data)
+    
+    print('input data shape main:', concat_data.shape)
 
     one_hot_encoder = Pipeline(steps=[
         ('imputer', SimpleImputer(missing_values='unknown', strategy='constant',fill_value='missing')),
         ('onehot', OneHotEncoder(handle_unknown='ignore'))
     ])
     one_hot_encode_cols = ['PROVIDER', 'FIRST_WATCHED_ASSET_CLASS_SUB_ADJ', 'FT_SEGMENT', 'FT_SUB_SEGMENT']
-
-    drop_cols = [label_column, 'HBO_UUID']
     
+    drop_cols = [label_column, 'HBO_UUID']
+
     preprocessor = ColumnTransformer(
             transformers=[
                 ('one_hot', one_hot_encoder, one_hot_encode_cols),
@@ -305,12 +306,26 @@ def input_fn(input_data, content_type):
         df = pd.read_csv(StringIO(input_data), 
                          header=None)
         
+        print('input data shape input_fn:', df.shape)
+        
         if len(df.columns) == len(feature_columns_names) + 1:
-            # This is a labelled example, includes the ring label
+            # This is a labelled example
             df.columns = feature_columns_names + [label_column]
         elif len(df.columns) == len(feature_columns_names):
             # This is an unlabelled example.
             df.columns = feature_columns_names
+        '''
+        elif len(df.columns) == len(feature_columns_names) - 1:
+            # This is the new data - UUID has been filtered in the batch transform job
+            df.insert(0, 'HBO_UUID', df[df.columns[0]])
+            df.columns = feature_columns_names
+            print('new data shape input_fn:', df.shape)
+            print('first column header:', df.columns[0])
+            print('first column head:', df[df.columns[0]].head())
+            print('second column header:', df.columns[1])
+            print('second column head:', df[df.columns[1]].head())
+        '''
+
             
         return df
     else:
@@ -350,17 +365,20 @@ def predict_fn(input_data, model):
     """
     
     features = model.transform(input_data)
+    
+    print('predict_fn input data columns:', input_data.columns)
 
     if label_column in input_data:
         # Return the label (as the first column) and the set of features.
         labeled_features = np.insert(features, 0, input_data[label_column], axis=1)
 
-        # Drop the first row (headers)
-        features_no_header = np.delete(labeled_features, 0, axis=0)
-
     else:
-        # Drop the first row (headers)
-        features_no_header = np.delete(features, 0, axis=0)
+        # Return the id (as the first column) and the set of features.
+        features = features.astype(str)
+        labeled_features = np.insert(features, 0, input_data[id_column], axis=1)
+        
+    # Drop the first row (headers)
+    features_no_header = np.delete(labeled_features, 0, axis=0)
 
     return features_no_header
     
