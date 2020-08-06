@@ -60,21 +60,21 @@ def lambda_handler(event, context):
             'DataSource': {
                 'S3DataSource': {
                     'S3DataType': 'S3Prefix',
-                    'S3Uri': f's3://{bucket}/lifecycle/free-trial-propensity-model/new/raw' 
+                    'S3Uri': f's3://{bucket}/free_trial_model/snowflake-hbomax-staging/inference/raw' 
                 }
             },
             'ContentType': 'text/csv',
             'SplitType': 'Line'
         },
         TransformOutput={
-            'S3OutputPath': f's3://{bucket}/lifecycle/free-trial-propensity-model/new/transformed',
+            'S3OutputPath': f's3://{bucket}/free_trial_model/snowflake-hbomax-staging/inference/transformed',
             'Accept': 'text/csv',
             'AssembleWith': 'Line',
             #'KmsKeyId': 'alias/aws/s3'
         },
         TransformResources={
             'InstanceType': 'ml.m4.2xlarge', #'ml.m4.10xlarge' 
-            'InstanceCount': 5,
+            'InstanceCount': 1,
             #'VolumeKmsKeyId': 'alias/aws/s3'
         }
     )
