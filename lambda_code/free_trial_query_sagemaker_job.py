@@ -10,12 +10,35 @@ logger.setLevel(logging.INFO)
 sm_client = boto3.client('sagemaker')
     
 def lambda_handler(event, context):
-    TransformJobName = event['TransformJobName']
+    job_name = event['job_name']
+    job_type = event['job_type']
     
-    # query the transform job status
-    response = sm_client.describe_transform_job(TransformJobName=TransformJobName)
-    job_status = response['TransformJobStatus']
-
+    if job_type == 'Transform':
+        # query the transform job status
+        response = sm_client.describe_transform_job(TransformJobName=job_name)
+        job_status = response['TransformJobStatus']
+        
+    elif job_type == 'Train':
+        response = sm_client.describe_training_job(TrainingJobName=job_name)
+        job_status = response['TrainingJobStatus']
+        
+        job_status = {}
+        
+        if 'FinalMetricDataList' in response:
+            #We can't marshall datetime objects in JSON response. So convert
+            #all datetime objects returned to unix time.
+            for index, metric in enumerate(response['FinalMetricDataList']):
+                metric['Timestamp'] = metric['Timestamp'].timestamp()
+            
+            job_status['trainingMetrics'] = response['FinalMetricDataList']
+            job_status['TrainingJobName'] = response['TrainingJobName']
+            job_status['TrainingJobArn'] = response['TrainingJobArn']
+            job_status['ModelArtifacts'] = response['ModelArtifacts']
+            job_status['HyperParameters'] = response['HyperParameters']
+            
+            test_auc = [m['Value'] for m in metrics['trainingMetrics'] if m['MetricName'] == 'validation:auc'][0]
+            job_status['TestAUC'] = test_auc
+            
     return {
         'statusCode': 200,
         'JobStatus': job_status

@@ -55,7 +55,7 @@ def lambda_handler(event, context):
         TransformJobName=TransformJobName,
         ModelName=f'free-trial-xgboost-model-{most_recent_string}',
         MaxPayloadInMB=6, # default
-        BatchStrategy='MultiRecord', #'SingleRecord'
+        BatchStrategy='SingleRecord', #'MultiRecord'
         TransformInput={
             'DataSource': {
                 'S3DataSource': {
@@ -74,14 +74,14 @@ def lambda_handler(event, context):
         },
         TransformResources={
             'InstanceType': 'ml.m4.2xlarge', #'ml.m4.10xlarge' 
-            'InstanceCount': 5,
+            'InstanceCount': 1,
             #'VolumeKmsKeyId': 'alias/aws/s3'
         },
         DataProcessing={
-        'InputFilter': '$[1:]',
-        'OutputFilter': '$[0,-1]',
-        'JoinSource': 'Input'
-    }
+                'InputFilter': '$[1:]',
+                #'OutputFilter': '$[0,-259:]',
+                'JoinSource': 'Input'
+            }
     )
     
     return {
