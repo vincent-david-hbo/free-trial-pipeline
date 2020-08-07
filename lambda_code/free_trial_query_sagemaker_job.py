@@ -29,15 +29,18 @@ def lambda_handler(event, context):
             #all datetime objects returned to unix time.
             for index, metric in enumerate(response['FinalMetricDataList']):
                 metric['Timestamp'] = metric['Timestamp'].timestamp()
-            
+
             job_status['trainingMetrics'] = response['FinalMetricDataList']
             job_status['TrainingJobName'] = response['TrainingJobName']
             job_status['TrainingJobArn'] = response['TrainingJobArn']
             job_status['ModelArtifacts'] = response['ModelArtifacts']
             job_status['HyperParameters'] = response['HyperParameters']
-            
-            test_auc = [m['Value'] for m in metrics['trainingMetrics'] if m['MetricName'] == 'validation:auc'][0]
-            job_status['TestAUC'] = test_auc
+
+            test_auc = [m['Value'] for m in response['FinalMetricDataList'] if m['MetricName'] == 'validation:auc'][0]
+            if test_auc > .1:
+                job_status['MeetsThreshold'] = 'True'
+            else:
+                job_status['MeetsThreshold'] = 'False'
             
     return {
         'statusCode': 200,

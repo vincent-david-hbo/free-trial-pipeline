@@ -67,7 +67,7 @@ def lambda_handler(event, context):
             'SplitType': 'Line'
         },
         TransformOutput={
-            'S3OutputPath': f's3://{bucket}/free_trial_model/snowflake-hbomax-staging/inference/results',
+            'S3OutputPath': f's3://{bucket}/free_trial_model/snowflake-hbomax-staging/results',
             'Accept': 'text/csv',
             'AssembleWith': 'Line',
             #'KmsKeyId': 'alias/aws/s3'

@@ -21,7 +21,7 @@ def findLatestModel():
         {
             'Key': 'model',
             'Values': [
-                'free_trial_sklearn_featurizer'
+                'free_trial_xgboost'
             ]
         },
     ],
