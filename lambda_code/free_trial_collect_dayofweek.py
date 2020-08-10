@@ -10,7 +10,7 @@ resource_client = boto3.client('resourcegroupstaggingapi')
 def lambda_handler(event, context):
     dayofweek = datetime.datetime.today().weekday()
     
-    if dayofweek == 4: # Sunday is 6
+    if dayofweek == 0: # Sunday is 6
         retrain = 'True'
     else:
         retrain = 'False'
